@@ -81,6 +81,7 @@ def _dms_to_dd(dms):
 
 
 app = dash.Dash()
+app.title = "ISS Tracker - Brian Smith"
 server = app.server
 
 def update_graph():
