@@ -1,4 +1,4 @@
-from dash import dcc, html, Input, Output
+from dash import dcc, html
 import dash_bootstrap_components as dbc
 import dash
 
@@ -80,38 +80,55 @@ def _dms_to_dd(dms):
     return dms[0] + dms[1]/60 + dms[2]/3600
 
 
-app = dash.Dash(external_stylesheets=[dbc.themes.LUX])
+app = dash.Dash()
 server = app.server
 
 def update_graph():
     tle = _pull_tle()
     positions = _get_sat_posn(tle)
-    fig = px.scatter_geo(labels={'lat': 'Latitude'},
+
+    fig = px.scatter_geo(title='2D Projection of ISS Orbit on Earth',
+                    labels={'lat': 'Latitude'},
                     data_frame=positions,
                     lat=positions['lat'],
                     lon=positions['lon'],
                     hover_name="name",
                     hover_data="datetime",
                     animation_frame="datetime",
+                    width=1400,
+                    height=800
                     )
-    fig.add_scattergeo(name='Orbital Path',
-                        lat=positions['lat'],
-                        lon=positions['lon'],
-                        mode='lines',
-                        opacity=0.5)
-
     citiesDF = pd.read_pickle('cities.pkl')
     fig.add_scattergeo(name='Cities',
                         customdata=citiesDF,
-                        hovertext=citiesDF['city'],
+                        hoverinfo='text',
+                        hovertext=citiesDF['city'].values,
                         lat=citiesDF['lat'],
                         lon=citiesDF['lng'],
                         mode='markers',
-                        opacity=1)
+                        opacity=0.5,
+                        marker={'size': citiesDF['population'].values}
+                        )
+    fig.add_scattergeo(name='Historical Path',
+                    lat=positions['lat'][0:91],
+                    lon=positions['lon'][0:91],
+                    mode='lines',
+                    opacity=0.5,
+                    marker={'size': 10, 'color': 'black'})
+    fig.add_scattergeo(name='Future Path',
+                    lat=positions['lat'][90:180],
+                    lon=positions['lon'][90:180],
+                    mode='lines',
+                    opacity=0.5,
+                    marker={'size': 10, 'color': 'green'})
+    fig.add_scattergeo(name='ISS Current Position',
+                    lat=[positions['lat'].iloc[90]],
+                    lon=[positions['lon'].iloc[90]],
+                    marker={'size': 12, 'color': 'red'})
     return fig
 
-app.layout = html.Div([
-    html.H1(children='CSS and ISS Historical Orbits (ECEF)'),
+app.layout = html.Div(children=[
+    html.H1('ISS Tracker'),
     dcc.Graph(figure=update_graph())
 ])
 
