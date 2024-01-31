@@ -97,8 +97,7 @@ def update_graph():
                     hover_data="datetime",
                     animation_frame="datetime",
                     width=1400,
-                    height=800
-                    )
+                    height=800)
     citiesDF = pd.read_pickle('cities.pkl')
     fig.add_scattergeo(name='Cities',
                         customdata=citiesDF,
@@ -115,17 +114,18 @@ def update_graph():
                     lon=positions['lon'][0:91],
                     mode='lines',
                     opacity=0.5,
-                    marker={'size': 10, 'color': 'black'})
+                    marker={'size': 10, 'color': 'black'},
+                    line={'dash': 'dash'})
     fig.add_scattergeo(name='Future Path',
                     lat=positions['lat'][90:180],
                     lon=positions['lon'][90:180],
                     mode='lines',
                     opacity=0.5,
-                    marker={'size': 10, 'color': 'green'})
+                    marker={'size': 10, 'color': 'black'})
     fig.add_scattergeo(name='ISS Current Position',
                     lat=[positions['lat'].iloc[90]],
                     lon=[positions['lon'].iloc[90]],
-                    marker={'size': 12, 'color': 'red'})
+                    marker={'size': 12, 'color': 'blue'})
     return fig
 
 app.layout = html.Div(children=[
